@@ -1,1 +1,2 @@
-from .request_auth_service import AuthServiceProtocol
+from .request_auth_service import AuthServiceProtocol, APIKeyAuthService
+from .sys_info_service import SysInfoServiceProtocol, SysInfoService
