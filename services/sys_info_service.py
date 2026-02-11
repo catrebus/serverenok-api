@@ -14,4 +14,15 @@ class SysInfoService(SysInfoServiceProtocol):
 
     # Температуры комплектующих
     async def get_temperature(self):
-        return await self.cmd_runner_service.run(['sensors'])
+        raw_out = await self.cmd_runner_service.run(['sensors'])
+
+        raw_out = raw_out.splitlines()
+        chipset = raw_out[7]
+        cpu = raw_out[8]
+        vrm = raw_out[11]
+        gpu = raw_out[23]
+        gpu = 'GPU:  ' + gpu[6:-32]
+
+        temperatures = {'chipset': chipset, 'cpu': cpu, 'vrm': vrm, 'gpu': gpu}
+
+        return temperatures
