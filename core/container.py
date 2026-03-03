@@ -1,21 +1,58 @@
 from config import Config
-from services import APIKeyAuthService, SysInfoService
+from services import APIKeyAuthService, SysInfoService, StorageService
 from utils import CmdRunner, Parser
 
 
 class Container:
     def __init__(self):
-        # ------ Config ------
         self.config = Config()
 
-        # ------ Singletons ------
-        self.auth_service = APIKeyAuthService(Config.SERVERENOK_API_KEY)
-        self.cmd_runner = CmdRunner()
-        self.parser = Parser()
-        self.infoService = SysInfoService(self.cmd_runner, self.parser)
+        self._cmd_runner = None
+        self._parser = None
+        self._auth_service = None
+        self._info_service = None
+        self._storage_service = None
 
-    def get_info_service(self):
-        return self.infoService
+    # ---------- Infra ----------
+
+    @property
+    def cmd_runner(self):
+        if self._cmd_runner is None:
+            self._cmd_runner = CmdRunner()
+        return self._cmd_runner
+
+    @property
+    def parser(self):
+        if self._parser is None:
+            self._parser = Parser()
+        return self._parser
+
+    # ---------- Services ----------
+
+    @property
+    def auth_service(self):
+        if self._auth_service is None:
+            self._auth_service = APIKeyAuthService(
+                self.config.SERVERENOK_API_KEY
+            )
+        return self._auth_service
+
+    @property
+    def info_service(self):
+        if self._info_service is None:
+            self._info_service = SysInfoService(
+                self.cmd_runner,
+                self.parser
+            )
+        return self._info_service
+
+    @property
+    def storage_service(self):
+        if self._storage_service is None:
+            self._storage_service = StorageService(
+                self.config.STORAGE_PATH
+            )
+        return self._storage_service
 
 
 container = Container()

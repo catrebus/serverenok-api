@@ -1,2 +1,3 @@
 from .request_auth_service import AuthServiceProtocol, APIKeyAuthService
 from .sys_info_service import SysInfoServiceProtocol, SysInfoService
+from .storage_service import StorageServiceProtocol, StorageService
