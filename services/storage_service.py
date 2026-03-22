@@ -1,3 +1,4 @@
+import datetime
 import os
 from abc import ABC, abstractmethod
 from typing import List, Dict
@@ -59,7 +60,7 @@ class StorageService(StorageServiceProtocol):
                 "name": f,
                 "is_dir": os.path.isdir(full),
                 "size": os.path.getsize(full),
-                "mod_time": os.stat(full).st_mtime
+                "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
             })
 
         # Сортировка (сначала папки, потом файлы)
