@@ -6,6 +6,8 @@ from typing import List, Dict
 from fastapi import HTTPException
 from starlette.concurrency import run_in_threadpool
 
+from core.dependencies import get_folders_helper
+
 
 class StorageServiceProtocol(ABC):
 
@@ -41,6 +43,7 @@ class StorageServiceProtocol(ABC):
 class StorageService(StorageServiceProtocol):
     def __init__(self, base_path: str):
         self.base_path = base_path #/api_storage
+        self.folders_helper = get_folders_helper()
 
     # Получение содержимого папки
     def _sync_list_dir(self, rel_path: str) -> Dict[str, List[str]]:
@@ -56,12 +59,24 @@ class StorageService(StorageServiceProtocol):
         items = []
         for f in os.listdir(abs_path):
             full = os.path.join(abs_path, f)
-            items.append({
-                "name": f,
-                "is_dir": os.path.isdir(full),
-                "size": os.path.getsize(full),
-                "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
-            })
+
+            if os.path.isdir(full): # Если папка
+
+                items.append({
+                    "name": f,
+                    "is_dir": os.path.isdir(full),
+                    "size": self.folders_helper.get_folder_size(full),
+                    "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
+                })
+
+            else: # Если файл
+
+                items.append({
+                    "name": f,
+                    "is_dir": os.path.isdir(full),
+                    "size": os.path.getsize(full),
+                    "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
+                })
 
         # Сортировка (сначала папки, потом файлы)
         items = sorted(items, key=lambda x: (not x['is_dir'], x['name'].lower()))

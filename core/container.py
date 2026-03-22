@@ -1,6 +1,7 @@
 from config import Config
 from services import APIKeyAuthService, SysInfoService, StorageService
 from utils import CmdRunner, Parser
+from utils.folders_helper import FoldersHelper
 
 
 class Container:
@@ -12,6 +13,7 @@ class Container:
         self._auth_service = None
         self._info_service = None
         self._storage_service = None
+        self._folders_helper = None
 
     # ---------- Infra ----------
 
@@ -26,6 +28,12 @@ class Container:
         if self._parser is None:
             self._parser = Parser()
         return self._parser
+
+    @property
+    def folders_helper(self):
+        if self._folders_helper is None:
+            self._folders_helper = FoldersHelper()
+        return self._folders_helper
 
     # ---------- Services ----------
 
