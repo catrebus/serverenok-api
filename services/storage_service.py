@@ -57,7 +57,9 @@ class StorageService(StorageServiceProtocol):
             full = os.path.join(abs_path, f)
             items.append({
                 "name": f,
-                "is_dir": os.path.isdir(full)
+                "is_dir": os.path.isdir(full),
+                "size": os.path.getsize(full),
+                "mod_time": os.stat(full).st_mtime
             })
 
         # Сортировка (сначала папки, потом файлы)
