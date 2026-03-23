@@ -57,7 +57,8 @@ class Container:
     def storage_service(self):
         if self._storage_service is None:
             self._storage_service = StorageService(
-                self.config.STORAGE_PATH
+                self.config.STORAGE_PATH,
+                self.folders_helper
             )
         return self._storage_service
 
