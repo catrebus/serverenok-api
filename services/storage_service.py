@@ -13,7 +13,7 @@ class StorageServiceProtocol(ABC):
 
     # Получение содержимого папки
     @abstractmethod
-    def _sync_list_dir(self, rel_path: str) -> List[Dict[str]]: ...
+    def _sync_list_dir(self, rel_path: str) -> List[Dict]: ...
 
     @abstractmethod
     async def list_dir(self, rel_path: str) -> Dict[str, List[str]]: ...
@@ -46,7 +46,7 @@ class StorageService(StorageServiceProtocol):
         self.folders_helper = folders_helper
 
     # Получение содержимого папки
-    def _sync_list_dir(self, rel_path: str) -> List[Dict[str]]:
+    def _sync_list_dir(self, rel_path: str) -> List[Dict]:
         abs_path = os.path.abspath(os.path.join(self.base_path, rel_path))
 
         # защита от выхода за пределы STORAGE_PATH
