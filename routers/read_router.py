@@ -1,13 +1,10 @@
 from fastapi import APIRouter, Depends
 
-
-from core.dependencies import get_info_service
-from services import SysInfoServiceProtocol
+from core import container
 
 read_router = APIRouter(prefix="/read", tags=["read"])
 
 @read_router.get('/temperature')
-async def get_temperature(
-        info_service: SysInfoServiceProtocol = Depends(get_info_service)
-):
+async def get_temperature():
+    info_service = container.info_service
     return await info_service.get_temperature()

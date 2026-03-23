@@ -1,7 +1,6 @@
 from config import Config
 from services import APIKeyAuthService, SysInfoService, StorageService
-from utils import CmdRunner, Parser
-from utils.folders_helper import FoldersHelper
+from utils import CmdRunner, Parser, FoldersHelper
 
 
 class Container:

@@ -6,7 +6,7 @@ from typing import List, Dict
 from fastapi import HTTPException
 from starlette.concurrency import run_in_threadpool
 
-from core.dependencies import get_folders_helper
+from core import container
 
 
 class StorageServiceProtocol(ABC):
@@ -43,7 +43,7 @@ class StorageServiceProtocol(ABC):
 class StorageService(StorageServiceProtocol):
     def __init__(self, base_path: str):
         self.base_path = base_path #/api_storage
-        self.folders_helper = get_folders_helper()
+        self.folders_helper = container.folders_helper
 
     # Получение содержимого папки
     def _sync_list_dir(self, rel_path: str) -> Dict[str, List[str]]:

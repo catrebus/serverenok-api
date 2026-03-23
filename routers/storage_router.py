@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Query
 
-from core.dependencies import get_storage_service
-from services import StorageServiceProtocol
+from core import container
+
 
 storage_router = APIRouter(prefix="/storage", tags=["storage"])
 
 @storage_router.get('/list')
-async def list_dir(path: str = Query("", description="Относительный путь в хранилище"), storage: StorageServiceProtocol = Depends(get_storage_service)):
-    return await storage.list_dir(path)
+async def list_dir(path: str = Query("", description="Относительный путь в хранилище")):
+    storage_service = container.storage_service
+    return await storage_service.list_dir(path)
