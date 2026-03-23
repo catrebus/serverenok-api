@@ -1,7 +1,7 @@
 import datetime
 import os
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from fastapi import HTTPException
 from starlette.concurrency import run_in_threadpool
@@ -13,7 +13,7 @@ class StorageServiceProtocol(ABC):
 
     # Получение содержимого папки
     @abstractmethod
-    def _sync_list_dir(self, rel_path: str) -> Dict[str, List[str]]: ...
+    def _sync_list_dir(self, rel_path: str) -> List[Dict[str]]: ...
 
     @abstractmethod
     async def list_dir(self, rel_path: str) -> Dict[str, List[str]]: ...
@@ -46,7 +46,7 @@ class StorageService(StorageServiceProtocol):
         self.folders_helper = folders_helper
 
     # Получение содержимого папки
-    def _sync_list_dir(self, rel_path: str) -> Dict[str, List[str]]:
+    def _sync_list_dir(self, rel_path: str) -> List[Dict[str]]:
         abs_path = os.path.abspath(os.path.join(self.base_path, rel_path))
 
         # защита от выхода за пределы STORAGE_PATH
@@ -65,26 +65,26 @@ class StorageService(StorageServiceProtocol):
                 items.append({
                     "name": f,
                     "is_dir": os.path.isdir(full),
-                    "size": self.folders_helper.get_folder_size(full),
-                    "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
-                })
-
-            else: # Если файл
-
-                items.append({
-                    "name": f,
-                    "is_dir": os.path.isdir(full),
-                    "size": os.path.getsize(full),
+                    "size": None,
                     "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
                 })
 
         # Сортировка (сначала папки, потом файлы)
         items = sorted(items, key=lambda x: (not x['is_dir'], x['name'].lower()))
 
-        return {"path": rel_path, "items": items}
+        return items
 
-    async def list_dir(self, rel_path: str) -> Dict[str, List[str]]:
-        return await run_in_threadpool(self._sync_list_dir, rel_path)
+    async def list_dir(self, rel_path: str) -> Dict[str, Any]:
+        items = await run_in_threadpool(self._sync_list_dir, rel_path)
+        for item in items:
+            if item['is_dir']:
+                full = os.path.join(self.base_path, rel_path, item["name"])
+                item['size'] = await self.folders_helper.get_folder_size(full)
+            else:
+                full = os.path.join(self.base_path, rel_path, item["name"])
+                item['size'] = os.path.getsize(full)
+
+        return {"path": rel_path, "items": items}
 
     # Отправка файла
     def _sync_upload_file(self, src_path: str, dest_path: str) -> None: ...
