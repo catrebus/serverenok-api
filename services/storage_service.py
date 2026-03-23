@@ -60,14 +60,12 @@ class StorageService(StorageServiceProtocol):
         for f in os.listdir(abs_path):
             full = os.path.join(abs_path, f)
 
-            if os.path.isdir(full): # Если папка
-
-                items.append({
-                    "name": f,
-                    "is_dir": os.path.isdir(full),
-                    "size": None,
-                    "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
-                })
+            items.append({
+                "name": f,
+                "is_dir": os.path.isdir(full),
+                "size": None,
+                "mod_time": datetime.datetime.fromtimestamp(os.stat(full).st_mtime)
+            })
 
         # Сортировка (сначала папки, потом файлы)
         items = sorted(items, key=lambda x: (not x['is_dir'], x['name'].lower()))
